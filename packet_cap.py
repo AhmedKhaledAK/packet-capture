@@ -71,7 +71,7 @@ def parse_network_layer_packet(ip_packet: bytes) -> IpPacket:
     print("data len:", len(data))
     print("data:", data)
 
-    return IpPacket(-1, -1, "0.0.0.0", "0.0.0.0", b'')
+    return IpPacket(protocol, ihl, srcaddr, destaddr, data)
 
 def getdata(ihl, ip_packet):
     start = int(ihl*32/8)
@@ -92,7 +92,7 @@ def main():
     while True:
         # Receive packets and do processing here
         bindata, addr = sniffer.recvfrom(5000)
-        parse_network_layer_packet(bindata)
+        ippacket = parse_network_layer_packet(bindata)
         print("addr:", addr)
 
 if __name__ == "__main__":
