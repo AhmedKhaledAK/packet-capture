@@ -30,7 +30,16 @@ class TcpPacket(object):
 def parse_raw_ip_addr(raw_ip_addr: bytes) -> str:
     # Converts a byte-array IP address to a string
     # the input is on the form b'\xaa\xab'... a byte array
-    return "0.0.0.0"
+    addr = ""
+    i = 0
+    while i < len(raw_ip_addr):
+        if i == len(raw_ip_addr) - 1:
+            addr+= str(raw_ip_addr[i] & 0xFF)
+        else:
+            addr+= str(raw_ip_addr[i] & 0xFF) + "."
+        i+=1
+
+    return addr
 
 
 def parse_application_layer_packet(ip_packet_payload: bytes) -> TcpPacket:
@@ -44,28 +53,29 @@ def parse_network_layer_packet(ip_packet: bytes) -> IpPacket:
     # That's a byte literal (~byte array) check resources section
 
     print("ip_packet:",ip_packet)
+    print("len:", len(ip_packet))
     print("1st byte:",ip_packet[0])
     ihl = ip_packet[0] & 0x0F
     print("ihl:",ihl)
     print("10th byte:", ip_packet[9])
     protocol = ip_packet[9] & 0xFF
     print("protocol:", protocol)
-    print("12-15", ip_packet[12:15])
-    srcaddr = getaddr(12, ip_packet)
+    print("12-15", ip_packet[12:16])
+    srcaddr = parse_raw_ip_addr(ip_packet[12:16])
     print("srcaddr:", srcaddr)
-    print("16-19", ip_packet[16:19])
-    destaddr  = getaddr(16, ip_packet)
+    print("16-19", ip_packet[16:20])
+    destaddr  = parse_raw_ip_addr(ip_packet[16:20])
     print("destaddr:", destaddr)
+
+    data = getdata(ihl, ip_packet)
+    print("data len:", len(data))
+    print("data:", data)
+
     return IpPacket(-1, -1, "0.0.0.0", "0.0.0.0", b'')
 
-
-def getaddr(pos, ip_packet):
-    networkid1 = ip_packet[pos] & 0xFF
-    networkid2 = ip_packet[pos+1] & 0xFF
-    hostid1 = ip_packet[pos+2] & 0xFF
-    hostid2 = ip_packet[pos+3] & 0xFF
-
-    return str(networkid1) + "." + str(networkid2) + "." + str(hostid1) + "." + str(hostid2)
+def getdata(ihl, ip_packet):
+    start = int(ihl*32/8)
+    return ip_packet[start:]
 
 
 def main():
