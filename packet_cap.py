@@ -53,11 +53,12 @@ def parse_application_layer_packet(ip_packet_payload: bytes) -> TcpPacket:
     destport = int.from_bytes(ip_packet_payload[2:4], byteorder="big")
     print("destport:", destport)
 
+    print("12:",ip_packet_payload[12])
+    offset = (ip_packet_payload[12] & 0xF0) >> 4
+    print("data offset:", offset)
+
+
     return TcpPacket(-1, -1, -1, b'')
-
-def getport(tcp_packet, i):
-    return int(str(tcp_packet[i])+str(tcp_packet[i+1]))
-
 
 def parse_network_layer_packet(ip_packet: bytes) -> IpPacket:
     # Parses raw bytes of an IPv4 packet
