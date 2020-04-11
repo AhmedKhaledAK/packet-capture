@@ -1,5 +1,5 @@
 import socket
-
+import binascii
 
 class IpPacket(object):
     """
@@ -52,8 +52,14 @@ def main():
     # iface_name = "lo"
     # stealer.setsockopt(socket.SOL_SOCKET,
     #                    socket.SO_BINDTODEVICE, bytes(iface_name, "ASCII"))
+    TCP = 0x0006
+    sniffer = socket.socket(socket.AF_INET, socket.SOCK_RAW, TCP)
+
     while True:
         # Receive packets and do processing here
+        data, addr = sniffer.recvfrom(4096)
+        hexdata = binascii.hexlify(data)
+        print("hex data:",hexdata)
         pass
     pass
 
