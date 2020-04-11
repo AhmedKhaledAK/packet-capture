@@ -46,10 +46,8 @@ def parse_application_layer_packet(ip_packet_payload: bytes) -> TcpPacket:
     # Parses raw bytes of a TCP packet
     # That's a byte literal (~byte array) check resources section
 
-    print("src port:", ip_packet_payload[0:2])
     srcport = int.from_bytes(ip_packet_payload[0:2], byteorder="big")
     print("srcport:", srcport)
-    print("dest port:", ip_packet_payload[2:4])
     destport = int.from_bytes(ip_packet_payload[2:4], byteorder="big")
     print("destport:", destport)
 
@@ -58,8 +56,14 @@ def parse_application_layer_packet(ip_packet_payload: bytes) -> TcpPacket:
     print("data offset:", offset)
 
     data = getdata(offset, ip_packet_payload)
-
     print("tcp data:", data)
+    decdata = ""
+    try:
+        decdata = data.decode("utf-8")
+        print("decdata:", decdata)
+    except:
+        print("oops")
+
 
     return TcpPacket(-1, -1, -1, b'')
 
