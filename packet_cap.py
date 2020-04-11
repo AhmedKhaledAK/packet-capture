@@ -42,7 +42,30 @@ def parse_application_layer_packet(ip_packet_payload: bytes) -> TcpPacket:
 def parse_network_layer_packet(ip_packet: bytes) -> IpPacket:
     # Parses raw bytes of an IPv4 packet
     # That's a byte literal (~byte array) check resources section
+
+    print("ip_packet:",ip_packet)
+    print("1st byte:",ip_packet[0])
+    ihl = ip_packet[0] & 0x0F
+    print("ihl:",ihl)
+    print("10th byte:", ip_packet[9])
+    protocol = ip_packet[9] & 0xFF
+    print("protocol:", protocol)
+    print("12-15", ip_packet[12:15])
+    srcaddr = getaddr(12, ip_packet)
+    print("srcaddr:", srcaddr)
+    print("16-19", ip_packet[16:19])
+    destaddr  = getaddr(16, ip_packet)
+    print("destaddr:", destaddr)
     return IpPacket(-1, -1, "0.0.0.0", "0.0.0.0", b'')
+
+
+def getaddr(pos, ip_packet):
+    networkid1 = ip_packet[pos] & 0xFF
+    networkid2 = ip_packet[pos+1] & 0xFF
+    hostid1 = ip_packet[pos+2] & 0xFF
+    hostid2 = ip_packet[pos+3] & 0xFF
+
+    return str(networkid1) + "." + str(networkid2) + "." + str(hostid1) + "." + str(hostid2)
 
 
 def main():
@@ -52,17 +75,15 @@ def main():
     # iface_name = "lo"
     # stealer.setsockopt(socket.SOL_SOCKET,
     #                    socket.SO_BINDTODEVICE, bytes(iface_name, "ASCII"))
-    TCP = 0x0006
+    
+    TCP = 0x0006    # this is the protocol number of TCP in hex
     sniffer = socket.socket(socket.AF_INET, socket.SOCK_RAW, TCP)
 
     while True:
         # Receive packets and do processing here
-        data, addr = sniffer.recvfrom(4096)
-        hexdata = binascii.hexlify(data)
-        print("hex data:",hexdata)
-        pass
-    pass
-
+        bindata, addr = sniffer.recvfrom(5000)
+        parse_network_layer_packet(bindata)
+        print("addr:", addr)
 
 if __name__ == "__main__":
     main()
