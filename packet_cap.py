@@ -71,6 +71,9 @@ def parse_network_layer_packet(ip_packet: bytes) -> IpPacket:
     print("data len:", len(data))
     print("data:", data)
 
+    print("hex packet:", binascii.hexlify(ip_packet))
+    print("hex data:", binascii.hexlify(data))
+
     return IpPacket(protocol, ihl, srcaddr, destaddr, data)
 
 def getdata(ihl, ip_packet):
