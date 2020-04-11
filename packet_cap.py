@@ -47,51 +47,30 @@ def parse_application_layer_packet(ip_packet_payload: bytes) -> TcpPacket:
     # That's a byte literal (~byte array) check resources section
 
     srcport = int.from_bytes(ip_packet_payload[0:2], byteorder="big")
-    print("srcport:", srcport)
     destport = int.from_bytes(ip_packet_payload[2:4], byteorder="big")
-    print("destport:", destport)
-
-    print("12:",ip_packet_payload[12])
     offset = (ip_packet_payload[12] & 0xF0) >> 4
-    print("data offset:", offset)
 
     data = getdata(offset, ip_packet_payload)
-    print("tcp data:", data)
     decdata = ""
     try:
         decdata = data.decode("utf-8")
         print("decdata:", decdata)
     except:
-        print("oops")
+        print("none")
 
 
-    return TcpPacket(-1, -1, -1, b'')
+    return TcpPacket(srcport, destport, offset, data)
 
 def parse_network_layer_packet(ip_packet: bytes) -> IpPacket:
     # Parses raw bytes of an IPv4 packet
     # That's a byte literal (~byte array) check resources section
 
-    # print("ip_packet:",ip_packet)
-    # print("len:", len(ip_packet))
-    # print("1st byte:",ip_packet[0])
     ihl = ip_packet[0] & 0x0F
-    # print("ihl:",ihl)
-    # print("10th byte:", ip_packet[9])
     protocol = ip_packet[9] & 0xFF
-    # print("protocol:", protocol)
-    # print("12-15", ip_packet[12:16])
     srcaddr = parse_raw_ip_addr(ip_packet[12:16])
-    # print("srcaddr:", srcaddr)
-    # print("16-19", ip_packet[16:20])
     destaddr  = parse_raw_ip_addr(ip_packet[16:20])
-    #print("destaddr:", destaddr)
 
     data = getdata(ihl, ip_packet)
-    # print("data len:", len(data))
-    # print("data:", data)
-
-    print("hex packet:", binascii.hexlify(ip_packet))
-    print("hex data:", binascii.hexlify(data))
 
     return IpPacket(protocol, ihl, srcaddr, destaddr, data)
 
@@ -116,7 +95,6 @@ def main():
         bindata, addr = sniffer.recvfrom(5000)
         ippacket = parse_network_layer_packet(bindata)
         parse_application_layer_packet(ippacket.payload)
-        print("addr:", addr)
 
 if __name__ == "__main__":
     main()
