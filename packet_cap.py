@@ -45,7 +45,18 @@ def parse_raw_ip_addr(raw_ip_addr: bytes) -> str:
 def parse_application_layer_packet(ip_packet_payload: bytes) -> TcpPacket:
     # Parses raw bytes of a TCP packet
     # That's a byte literal (~byte array) check resources section
+
+    print("src port:", ip_packet_payload[0:2])
+    srcport = int.from_bytes(ip_packet_payload[0:2], byteorder="big")
+    print("srcport:", srcport)
+    print("dest port:", ip_packet_payload[2:4])
+    destport = int.from_bytes(ip_packet_payload[2:4], byteorder="big")
+    print("destport:", destport)
+
     return TcpPacket(-1, -1, -1, b'')
+
+def getport(tcp_packet, i):
+    return int(str(tcp_packet[i])+str(tcp_packet[i+1]))
 
 
 def parse_network_layer_packet(ip_packet: bytes) -> IpPacket:
@@ -96,6 +107,7 @@ def main():
         # Receive packets and do processing here
         bindata, addr = sniffer.recvfrom(5000)
         ippacket = parse_network_layer_packet(bindata)
+        parse_application_layer_packet(ippacket.payload)
         print("addr:", addr)
 
 if __name__ == "__main__":
